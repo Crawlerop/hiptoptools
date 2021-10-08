@@ -274,7 +274,10 @@ if __name__ == "__main__":
                 res_data = lzss_decompress(res_data[8:])
 
             if res_type == RES_STRING:
-                STR_WRITER.writerow({"id":res_id,"string":res_data.decode("utf-8").replace("\x0a","\x0d\x0a")})                
+                try:
+                    STR_WRITER.writerow({"id":res_id,"string":res_data.decode("utf-8").replace("\x0a","\x0d\x0a")})                
+                except Exception:
+                    STR_WRITER.writerow({"id":res_id,"string":res_data.decode("latin1").replace("\x0a","\x0d\x0a")})                
             
             elif res_type == RES_BITMAP:
                 if res_data[:4] == b"\x89PNG":
@@ -316,7 +319,10 @@ if __name__ == "__main__":
                     index_data = array_data.read(index_size)
                     
                     if res_type == RES_STRINGARRAY:
-                        STR_WRITER.writerow({"id": i+1, "string": index_data.decode("utf-8")})
+                        try:
+                            STR_WRITER.writerow({"id": i+1, "string": index_data.decode("utf-8")})
+                        except Exception:
+                            STR_WRITER.writerow({"id": i+1, "string": index_data.decode("latin1")})
                     elif res_type == RES_BITMAPS:
                         if index_data[:4] == b"\x89PNG":
                             open(f"{extracted_path}/{PATH_STR}/{res_id}_{i+1}.png", "wb").write(DPLT_Convert(index_data))

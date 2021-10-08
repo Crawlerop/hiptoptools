@@ -32,19 +32,21 @@ if __name__ == "__main__":
     fd.read(0x30)
 
     if version != "V1":
-        fd.read(0xc)
+        fd.read(0xc if b_size else 0x8)
 
-    if compression == b"ZLIB":
-        open(f"{sys.argv[1]}.app", "wb").write(zlib.decompress(fd.read(b_size)))
-    elif compression == b"NONE":
-        open(f"{sys.argv[1]}.app", "wb").write(fd.read(b_size))
+    if b_size >= 1:
+        if compression == b"ZLIB":
+            open(f"{sys.argv[1]}.app", "wb").write(zlib.decompress(fd.read(b_size)))
+        elif compression == b"NONE":
+            open(f"{sys.argv[1]}.app", "wb").write(fd.read(b_size))
     
-    bndl_io = None
+    bndl_io = None    
 
-    if compression_res == b"ZLIB":
-        bndl_io = io.BytesIO(zlib.decompress(fd.read(r_size)))
-    elif compression_res == b"NONE":
-        bndl_io = io.BytesIO(fd.read(r_size))
+    if r_size >= 1:
+        if compression_res == b"ZLIB":
+            bndl_io = io.BytesIO(zlib.decompress(fd.read(r_size)))
+        elif compression_res == b"NONE":
+            bndl_io = io.BytesIO(fd.read(r_size))
 
     bndl_id = 1
     bndl_io_size = len(bndl_io.getvalue())
@@ -54,4 +56,6 @@ if __name__ == "__main__":
         bndl_size = struct.unpack("<L", bndl_io.read(4))[0]
         bndl_io.seek(prev_offset)
         open(f"{sys.argv[1]}_{bndl_id}.rdb", "wb").write(bndl_io.read(bndl_size))
+        #print(bndl_id)
+        #os.system(f"python ../riprdb.py {sys.argv[1]}_{bndl_id}.rdb")
         bndl_id += 1
