@@ -286,7 +286,7 @@ if __name__ == "__main__":
                     open(f"{extracted_path}/{PATH_STR}/{res_id}.img", "wb").write(res_data)
 
             elif res_type == RES_WAVE:
-                if res_data[:4] == b"RIFF" and res_data[8:0x10] == b"WAVEfmt ":
+                if res_data[:4] == b"RIFF" and res_data[8:12] == b"WAVE":
                     open(f"{extracted_path}/{PATH_STR}/{res_id}.wav", "wb").write(res_data)
                 elif res_data[:3] == b"ID3" or res_data[:2] in [b"\xff\xfb", b"\xff\xf3", b"\xff\xe3"]:
                     open(f"{extracted_path}/{PATH_STR}/{res_id}.mp3", "wb").write(res_data)
